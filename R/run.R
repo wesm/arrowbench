@@ -20,21 +20,16 @@ run.default <- function(x, ...) {
 }
 
 
-#' @param publish Flag for whether to publish results to a Conbench server. See
-#' "Environment Variables" section for how to specify server details. Requires
-#' the benchconnect CLI is installed; see [install_benchconnect()].
+#' @param publish Flag for whether to write Conbench result payload JSON files.
+#' Submit the generated files to a Conbench v2 server with the Go `conbench` CLI.
 #' @param run_id Unique ID for the run. If not specified, will be generated.
 #' @param run_name Name for the run. If not specified, will use `{run_reason}: {commit hash}`
 #' @param run_reason Required. Low-cardinality reason for the run, e.g. "commit" or "test"
 #'
 #' @section Environment Variables:
 #'
-#' - `CONBENCH_URL`: Required. The URL of the Conbench server with no trailing
-#' slash. For arrow, should be `https://conbench.arrow-dev.org`.
-#' - `CONBENCH_EMAIL`: The email to use for Conbench login. Only required if the
-#' server is private.
-#' - `CONBENCH_PASSWORD`: The password to use for Conbench login. Only required
-#' if the server is private.
+#' - `CONBENCH_RESULTS_DIR`: Directory for generated Conbench result payloads.
+#' Defaults to `bench-results`.
 #' - `CONBENCH_PROJECT_REPOSITORY`: The repository name (in the format
 #' `org/repo`) or the URL (in the format `https://github.com/org/repo`).
 #' Defaults to `"https://github.com/apache/arrow"` if unset.
@@ -48,6 +43,7 @@ run.default <- function(x, ...) {
 #' - `CONBENCH_MACHINE_INFO_NAME`: Will override detected machine host name sent
 #' in `machine_info.name` when posting runs and results. Needed for cases where
 #' the actual host name can vary, like CI and cloud runners.
+#' - `CONBENCH_TOKEN`: The v2 API token used later by the Go CLI submit step.
 #'
 #' @rdname run
 #' @export
@@ -75,7 +71,9 @@ run.BenchmarkDataFrame <- function(x,
       reason = run_reason,
       github = github
     )
-    start_run(run = bm_run)
+    bm_run <- start_run(run = bm_run)
+    run_id <- bm_run$id
+    run_name <- bm_run$name
 
     # clean up even if something fails
     on.exit({

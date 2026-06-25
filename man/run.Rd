@@ -16,9 +16,8 @@ run(x, ...)
 \code{run.BenchmarkDataFrame}, passed through to \code{\link[=get_default_parameters]{get_default_parameters()}} (when
 parameters are not specified) and \code{\link[=run_benchmark]{run_benchmark()}}.}
 
-\item{publish}{Flag for whether to publish results to a Conbench server. See
-"Environment Variables" section for how to specify server details. Requires
-the benchconnect CLI is installed; see \code{\link[=install_benchconnect]{install_benchconnect()}}.}
+\item{publish}{Flag for whether to write Conbench result payload JSON files.
+Submit the generated files to a Conbench v2 server with the Go \code{conbench} CLI.}
 
 \item{run_id}{Unique ID for the run. If not specified, will be generated.}
 
@@ -36,12 +35,8 @@ Run an object
 \section{Environment Variables}{
 
 \itemize{
-\item \code{CONBENCH_URL}: Required. The URL of the Conbench server with no trailing
-slash. For arrow, should be \verb{https://conbench.arrow-dev.org}.
-\item \code{CONBENCH_EMAIL}: The email to use for Conbench login. Only required if the
-server is private.
-\item \code{CONBENCH_PASSWORD}: The password to use for Conbench login. Only required
-if the server is private.
+\item \code{CONBENCH_RESULTS_DIR}: Directory for generated Conbench result payloads.
+Defaults to \code{bench-results}.
 \item \code{CONBENCH_PROJECT_REPOSITORY}: The repository name (in the format
 \code{org/repo}) or the URL (in the format \verb{https://github.com/org/repo}).
 Defaults to \code{"https://github.com/apache/arrow"} if unset.
@@ -55,6 +50,6 @@ depending on how Arrow was built.
 \item \code{CONBENCH_MACHINE_INFO_NAME}: Will override detected machine host name sent
 in \code{machine_info.name} when posting runs and results. Needed for cases where
 the actual host name can vary, like CI and cloud runners.
+\item \code{CONBENCH_TOKEN}: The v2 API token used later by the Go CLI submit step.
 }
 }
-

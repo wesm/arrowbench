@@ -1,38 +1,69 @@
-# Call benchconnect
-#
-# @param args A character vector of arguments to pass to the benchconnect binary
-#
-# @returns A string of stdout returned by the call
-call_benchconnect <- function(args) {
-  stopifnot(benchconnect_available())
-  res <- processx::run(command = "benchconnect", args = args, echo_cmd = TRUE, echo = TRUE)
-  message(res$stderr)
-  res$stdout
+conbench_results_dir <- function() {
+  dir <- Sys.getenv("CONBENCH_RESULTS_DIR", "bench-results")
+  if (dir == "") {
+    dir <- "bench-results"
+  }
+  if (!dir.exists(dir)) {
+    dir.create(dir, recursive = TRUE)
+  }
+  dir
 }
 
+conbench_machine_info <- function() {
+  host_name <- Sys.getenv("CONBENCH_MACHINE_INFO_NAME")
+  if (host_name == "") {
+    host_name <- Sys.info()[["nodename"]]
+  }
+  if (is.null(host_name) || is.na(host_name) || host_name == "") {
+    host_name <- "unknown"
+  }
+  list(name = unname(host_name))
+}
 
 augment_run <- function(run) {
-  stdout <- call_benchconnect(c("augment", "run", "--json", run$json))
-  BenchmarkRun$from_json(stdout)
+  if (is.null(run$id)) {
+    run$id <- uuid::UUIDgenerate()
+  }
+  if (is.null(run$github)) {
+    run$github <- github_info()
+  }
+  if (is.null(run$name) && !is.null(run$reason)) {
+    run$name <- paste(run$reason, run$github$commit, sep = ": ")
+  }
+  if (is.null(run$machine_info)) {
+    run$machine_info <- conbench_machine_info()
+  }
+  run
 }
 
 augment_result <- function(result) {
-  stdout <- call_benchconnect(c("augment", "result", "--json", result$json))
-  BenchmarkResult$from_json(stdout)
+  if (is.null(result$run_id)) {
+    result$run_id <- uuid::UUIDgenerate()
+  }
+  if (is.null(result$batch_id)) {
+    result$batch_id <- uuid::UUIDgenerate()
+  }
+  if (is.null(result$github)) {
+    result$github <- github_info()
+  }
+  if (is.null(result$machine_info)) {
+    result$machine_info <- conbench_machine_info()
+  }
+  result
 }
 
-
 start_run <- function(run) {
-  call_benchconnect(c("start", "run", "--json", run$json))
+  invisible(augment_run(run))
 }
 
 submit_result <- function(result) {
-  call_benchconnect(c("submit", "result", "--json", result$json))
+  result <- augment_result(result)
+  path <- file.path(conbench_results_dir(), paste0("result-", uuid::UUIDgenerate(), ".json"))
+  result$write_json(path)
+  message("Wrote Conbench result payload: ", path)
+  invisible(path)
 }
 
 finish_run <- function(run) {
-  # Ed note: `run` is not used right now, but there are some things we can pass
-  # here in the future, so I put it here for parallelism for now. Since it is
-  # not evaluated, it doesn't need to be specified for now.
-  call_benchconnect(c("finish", "run", "--json", "{}"))
+  invisible(NULL)
 }

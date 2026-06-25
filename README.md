@@ -267,6 +267,23 @@ its sets of parameters and append a `results` column to the returned dataset
 that contains result objects that can be transformed to JSON appropriate for 
 sending to a Conbench server.
 
+When `run(..., publish = TRUE)` is used in this v2 migration fork, arrowbench
+writes Conbench result payloads to `CONBENCH_RESULTS_DIR`, or `bench-results/`
+when that environment variable is not set. Submit those payloads with the Go
+Conbench CLI after the benchmark run:
+
+```sh
+export CONBENCH_SERVER_URL=http://localhost:18080
+export CONBENCH_TOKEN=<token>
+export CONBENCH_RESULTS_DIR=bench-results
+conbench-v2 results submit "$CONBENCH_RESULTS_DIR/*.json" \
+  --server "$CONBENCH_SERVER_URL" \
+  --jobs 16
+```
+
+Use a distinct binary name such as `conbench-v2` when the legacy Python
+benchmark runner command named `conbench` is installed in the same environment.
+
 ### Enabling benchmarks to be run on conbench
 
 [Conbench](https://conbench.arrow-dev.org/) is a service that runs benchmarks continuously on a repo. We have a conbench

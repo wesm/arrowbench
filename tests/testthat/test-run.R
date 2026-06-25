@@ -368,6 +368,7 @@ test_that("run.BenchmarkDataFrame() with `publish = TRUE` works (with mocking)",
               expect_identical(run$name, run_name)
               expect_identical(run$reason, run_reason)
               expect_identical(run$machine_info$name, host_name)
+              run
             }
           )
 

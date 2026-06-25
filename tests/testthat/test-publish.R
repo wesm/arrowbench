@@ -1,14 +1,10 @@
-test_that("call benchconnect works", {
-  expect_match(call_benchconnect("--help"), "Command line utilities for interacting with a Conbench API")
-})
-
 test_that("augment_run() works", {
   reason <- "test"
   host_name <- "fake-computer"
   github <- list(
     commit = "fake-commit",
     repository = "https://github.com/conchair/conchair",
-    pr_number = "47"
+    pr_number = 47L
   )
 
   unaugmented_run <- BenchmarkRun$new(reason = reason, github = NULL)
@@ -44,7 +40,7 @@ test_that("augment_result() works", {
   github <- list(
     commit = "fake-commit",
     repository = "conchair/conchair",
-    pr_number = "47"
+    pr_number = 47L
   )
 
   unaugmented_result <- BenchmarkResult$new(stats = stats, github = NULL)
@@ -77,59 +73,60 @@ test_that("augment_result() works", {
 
 
 test_that("start_run() works", {
+  host_name <- "fake-computer"
   bm_run <- BenchmarkRun$new(
     name = "arrowbench-unit-test: 2z8c9c49a5dc4a179243268e4bb6daa5",
     reason = "arrowbench-unit-test",
     github = list(
       commit = "2z8c9c49a5dc4a179243268e4bb6daa5",
       repository = "https://github.com/conchair/conchair",
-      pr_number = "47"
+      pr_number = 47L
     )
   )
 
-  mockery::stub(
-    where = start_run,
-    what = "call_benchconnect",
-    how = function(args) {
-      expect_identical(args, c("start", "run", "--json", bm_run$json))
-    }
+  withr::with_envvar(
+    c(CONBENCH_MACHINE_INFO_NAME = host_name),
+    started_run <- start_run(run = bm_run)
   )
-  start_run(run = bm_run)
+
+  expect_identical(started_run$name, bm_run$name)
+  expect_identical(started_run$reason, bm_run$reason)
+  expect_type(started_run$id, "character")
+  expect_identical(started_run$machine_info$name, host_name)
 })
 
 
 test_that("submit_result() works", {
+  result_dir <- tempfile("conbench-results-")
   bm_result <- BenchmarkResult$new(
+    run_id = "fake-run-id",
     run_name = "arrowbench-unit-test: 2z8c9c49a5dc4a179243268e4bb6daa5",
     run_reason = "arrowbench-unit-test",
     github = list(
       commit = "2z8c9c49a5dc4a179243268e4bb6daa5",
       repository = "https://github.com/conchair/conchair",
-      pr_number = "47"
+      pr_number = 47L
     ),
-    stats <- list(data = list(1, 2, 3), unit = "s", times = NULL, time_unit = NULL, iterations = 3)
+    stats = list(data = list(1, 2, 3), unit = "s", times = NULL, time_unit = NULL, iterations = 3)
   )
 
-  mockery::stub(
-    where = submit_result,
-    what = "call_benchconnect",
-    how = function(args) {
-      expect_identical(args, c("submit", "result", "--json", bm_result$json))
-    }
+  withr::with_envvar(
+    c(CONBENCH_RESULTS_DIR = result_dir, CONBENCH_MACHINE_INFO_NAME = "fake-computer"),
+    path <- submit_result(result = bm_result)
   )
-  submit_result(result = bm_result)
+
+  expect_true(file.exists(path))
+  payload <- BenchmarkResult$read_json(path)
+  expect_identical(payload$run_id, "fake-run-id")
+  expect_identical(payload$run_name, bm_result$run_name)
+  expect_identical(payload$run_reason, bm_result$run_reason)
+  expect_identical(payload$machine_info$name, "fake-computer")
+  expect_identical(payload$github, bm_result$github)
 })
 
 
 test_that("finish_run() works", {
-  mockery::stub(
-    where = finish_run,
-    what = "call_benchconnect",
-    how = function(args) {
-      expect_identical(args, c("finish", "run", "--json", "{}"))
-    }
-  )
-  finish_run()
+  expect_invisible(finish_run())
 })
 
 unlink("benchconnect-state.json")
