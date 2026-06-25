@@ -276,10 +276,15 @@ Conbench CLI after the benchmark run:
 export CONBENCH_SERVER_URL=http://localhost:18080
 export CONBENCH_TOKEN=<token>
 export CONBENCH_RESULTS_DIR=bench-results
+export CONBENCH_SUBMIT_JOBS=${CONBENCH_SUBMIT_JOBS:-16}
 conbench-v2 results submit "$CONBENCH_RESULTS_DIR/*.json" \
   --server "$CONBENCH_SERVER_URL" \
-  --jobs 16
+  --jobs "$CONBENCH_SUBMIT_JOBS"
 ```
+
+The Buildkite migration fork sets a higher measured default for full
+one-file-per-result suite submissions. The local example keeps a conservative
+default so development endpoints can opt into more parallelism deliberately.
 
 Use a distinct binary name such as `conbench-v2` when the legacy Python
 benchmark runner command named `conbench` is installed in the same environment.
