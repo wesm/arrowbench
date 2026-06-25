@@ -2,8 +2,8 @@ test_that("augment_run() works", {
   reason <- "test"
   host_name <- "fake-computer"
   github <- list(
-    commit = "fake-commit",
     repository = "https://github.com/conchair/conchair",
+    commit = "fake-commit",
     pr_number = 47L
   )
 
@@ -38,8 +38,8 @@ test_that("augment_result() works", {
   stats <- list(data = list(1, 2, 3), unit = "s", times = NULL, time_unit = NULL, iterations = 3)
   host_name <- "fake-computer"
   github <- list(
-    commit = "fake-commit",
     repository = "conchair/conchair",
+    commit = "fake-commit",
     pr_number = 47L
   )
 

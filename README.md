@@ -284,6 +284,32 @@ conbench-v2 results submit "$CONBENCH_RESULTS_DIR/*.json" \
 Use a distinct binary name such as `conbench-v2` when the legacy Python
 benchmark runner command named `conbench` is installed in the same environment.
 
+#### V2 payload metadata
+
+The R benchmark command still owns benchmark execution. The v2 migration changes
+only the publish boundary:
+
+* `run_id`, `run_name`, and `run_reason` come from `run(..., publish = TRUE,
+  run_id = ..., run_name = ..., run_reason = ...)`; Buildkite sets these from
+  the build context.
+* `batch_id` is generated per `run_benchmark()` call unless a caller supplies
+  one.
+* `github.repository`, `github.commit`, and `github.pr_number` come from
+  `CONBENCH_PROJECT_REPOSITORY`, `CONBENCH_PROJECT_COMMIT`, and
+  `CONBENCH_PROJECT_PR_NUMBER`; the repository defaults to
+  `https://github.com/apache/arrow`.
+* `machine_info.name` comes from `CONBENCH_MACHINE_INFO_NAME`, falling back to
+  the detected host name.
+* `info`, `context`, `tags`, and `optional_benchmark_info` remain the existing
+  arrowbench result metadata.
+
+All benchmark definitions in `inst/benchmarks.json` publish through this same
+payload boundary. The containerized v2 smoke currently covers the internal
+`placebo` benchmark because it has no external dataset dependency and proves
+`run(..., publish = TRUE)` end to end. Dataset and TPC-H benchmark families
+still need runtime coverage on benchmark machines with the corresponding Arrow
+and data setup.
+
 ### Enabling benchmarks to be run on conbench
 
 [Conbench](https://conbench.arrow-dev.org/) is a service that runs benchmarks continuously on a repo. We have a conbench

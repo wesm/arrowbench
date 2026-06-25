@@ -9,7 +9,11 @@ utc_now_iso_format <- function() {
   })
 
   withr::with_options(list(digits.secs = 6L), {
-    format(utc_now, format = "%FT%H:%M:%OS%z")
+    sub(
+      "([+-][0-9]{2})([0-9]{2})$",
+      "\\1:\\2",
+      format(utc_now, format = "%FT%H:%M:%OS%z")
+    )
   })
 }
 

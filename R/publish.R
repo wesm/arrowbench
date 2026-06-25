@@ -21,6 +21,7 @@ conbench_machine_info <- function() {
 }
 
 augment_run <- function(run) {
+  run <- run$clone(deep = TRUE)
   if (is.null(run$id)) {
     run$id <- uuid::UUIDgenerate()
   }
@@ -37,6 +38,7 @@ augment_run <- function(run) {
 }
 
 augment_result <- function(result) {
+  result <- result$clone(deep = TRUE)
   if (is.null(result$run_id)) {
     result$run_id <- uuid::UUIDgenerate()
   }

@@ -31,6 +31,14 @@ test_that("get_default_args", {
 })
 
 
+test_that("utc_now_iso_format() returns RFC3339 UTC timestamps", {
+  expect_match(
+    utc_now_iso_format(),
+    "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?\\+00:00$"
+  )
+})
+
+
 test_that("sync_and_drop_caches() works", {
   # @param ... named values where names are values for `args` and values are
   # whether to fail
