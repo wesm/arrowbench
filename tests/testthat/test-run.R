@@ -452,7 +452,6 @@ test_that("run.BenchmarkDataFrame() with `publish = TRUE` works (with mocking)",
   })
 })
 
-unlink("benchconnect-state.json")
 wipe_results()
 
 do.call(Sys.setenv, old_env_vars)

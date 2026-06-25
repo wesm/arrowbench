@@ -128,5 +128,3 @@ test_that("submit_result() works", {
 test_that("finish_run() works", {
   expect_invisible(finish_run())
 })
-
-unlink("benchconnect-state.json")

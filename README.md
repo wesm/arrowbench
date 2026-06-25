@@ -283,6 +283,8 @@ conbench-v2 results submit "$CONBENCH_RESULTS_DIR/*.json" \
 
 Use a distinct binary name such as `conbench-v2` when the legacy Python
 benchmark runner command named `conbench` is installed in the same environment.
+This v2 branch does not install or call `benchconnect`; the Go CLI is the only
+supported publishing path for generated payload files.
 
 #### V2 payload metadata
 

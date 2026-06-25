@@ -29,10 +29,6 @@ pipx_available <- function() {
   external_cli_available(cli = "pipx")
 }
 
-benchconnect_available <- function() {
-  external_cli_available(cli = "benchconnect")
-}
-
 datalogistik_available <- function() {
   external_cli_available(cli = "datalogistik")
 }
@@ -48,34 +44,6 @@ datalogistik_available <- function() {
 #' @export
 install_pipx <- function() {
   processx::run("sh", c("-c", "pip install pipx && pipx ensurepath"), echo_cmd = TRUE)
-}
-
-
-#' Install benchconnect
-#'
-#' Install [benchconnect](https://github.com/conbench/conbench/tree/main/benchconnect),
-#' a utility for sending benchmark results to a Conbench server
-#'
-#' @export
-install_benchconnect <- function() {
-  stopifnot(pipx_available())
-
-  url <- "benchconnect@git+https://github.com/conbench/conbench.git@main#subdirectory=benchconnect"
-
-  if (suppressWarnings(benchconnect_available(), classes = "notInstalledWarning")) {
-    if (interactive()) {
-      ans <- readline("benchconnect already installed. Update? [Y/n]: ")
-    } else {
-      ans <- "y"
-    }
-    if (tolower(ans) %in% c("y", "")) {
-      processx::run("pipx", c("install", "--include-deps", "--force", url), echo_cmd = TRUE)
-    } else {
-      invisible()
-    }
-  } else {
-    processx::run("pipx", c("install", "--include-deps", url), echo_cmd = TRUE)
-  }
 }
 
 
